@@ -1,0 +1,15 @@
+1、Activity模式（栈）
+standard、singleTop、singleTask、singleInstance 
+standard:默认模式
+singleTop：activity不在栈顶时，此会被重新创建， 多适用于新闻类
+singleTask：调用的时候，其所在栈上面的所有activity会被消除，来达到置顶的目的
+singleInstance： 全局单例模式
+
+2、Activity的启动过程
+a、通过桌面图标进入--》最后走到Activity.startActivityForResult（）
+b、通过另一个Activity调用--》startActivity()或startActivityForResult()方法启动指定activity
+
+3、Activity生命周期
+oncreate（）-->onstart()-->onresume()开始可见-->onpause()-->onstop()不可见-->ondestroy()
+back键返回：走ondestroy()
+home键返回：不走ondestroy()
