@@ -1,0 +1,141 @@
+1、基本概念：依赖于用户的进程，在后台运行，可以和其他组件交互。
+2、应用场景：多媒体后台播放，检查sdcard变化，地理位置变化
+3、service生命周期：onCreate()、onStartCommand()、onDestry()。 服务创建之后，再调用服务都是：onStartCommand（）
+4、创建核心步骤：
+    创建一个类继承android.app.Service类，实现抽象方法onBind()，重写onCreate()、onStartCommand()、onDestry();
+    在清单文件中配置Service。
+
+1 package com.example.servicetest;
+ 2 
+ 3 import android.app.Service;
+ 4 import android.content.Intent;
+ 5 import android.os.IBinder;
+ 6 import android.util.Log;
+ 7 
+ 8 public class MyService extends Service {  
+ 9       
+10     public static final String TAG = "MyService";  
+11   
+12     //创建服务时调用
+13     @Override  
+14     public void onCreate() {  
+15         super.onCreate();  
+16         Log.d(TAG, "onCreate");  
+17     }  
+18   
+19     //服务执行的操作
+20     @Override  
+21     public int onStartCommand(Intent intent, int flags, int startId) {  
+22         Log.d(TAG, "onStartCommand");  
+23         return super.onStartCommand(intent, flags, startId);  
+24     }  
+25       
+26     //销毁服务时调用
+27     @Override  
+28     public void onDestroy() {  
+29         super.onDestroy();  
+30         Log.d(TAG, "onDestroy");  
+31     }  
+32   
+33     @Override  
+34     public IBinder onBind(Intent intent) {  
+35         return null;  
+36     }  
+37 }
+
+onBind()方法是Service中唯一的一个抽象方法，所以必须要在子类里实现。
+Service可以有两种启动方式：一种是startService()，另一种是bindService()。第二种启动方式才会用到onBind()方法。
+我们这先用第一种方式启动Service，所以暂时忽略onBind()方法。
+
+（2）在清单文件中声明：（和Activity标签并列）
+ <service android:name=".MyService">        </service>
+
+（3）修改activity_main.xml代码，如下：
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"  
+    android:layout_width="match_parent"  
+    android:layout_height="match_parent"  
+    android:orientation="vertical" >  
+  
+    <Button  
+        android:id="@+id/button1_start_service"  
+        android:layout_width="match_parent"  
+        android:layout_height="wrap_content"  
+        android:text="Start Service" />  
+  
+    <Button  
+        android:id="@+id/button2_stop_service"  
+        android:layout_width="match_parent"  
+        android:layout_height="wrap_content"  
+        android:text="Stop Service" />  
+  
+</LinearLayout> 
+（4）在MainActivity作为程序的主Activity，在里面加入启动Service和停止Service的逻辑，代码如下：
+
+package com.example.servicetest;
+ 2 
+ 3 import android.app.Activity;
+ 4 import android.content.Intent;
+ 5 import android.os.Bundle;
+ 6 import android.view.View;
+ 7 import android.view.View.OnClickListener;
+ 8 import android.widget.Button;
+ 9 
+10 
+11 public class MainActivity extends Activity implements OnClickListener {  
+12       
+13     private Button button1_start_service;  
+14   
+15     private Button button2_stop_service;  
+16   
+17     @Override  
+18     protected void onCreate(Bundle savedInstanceState) {  
+19         super.onCreate(savedInstanceState);  
+20         setContentView(R.layout.activity_main);  
+21         button1_start_service = (Button) findViewById(R.id.button1_start_service);  
+22         button2_stop_service = (Button) findViewById(R.id.button2_stop_service);  
+23         button1_start_service.setOnClickListener(this);  
+24         button2_stop_service.setOnClickListener(this);  
+25     }  
+26   
+27     @Override  
+28     public void onClick(View v) {  
+29         switch (v.getId()) {  
+30         case R.id.button1_start_service:  
+31             Intent startIntent = new Intent(this, MyService.class);  
+32             startService(startIntent);  
+33             break;  
+34         case R.id.button2_stop_service:  
+35             Intent stopIntent = new Intent(this, MyService.class);  
+36             stopService(stopIntent);  
+37             break;  
+38         default:  
+39             break;  
+40         }  
+41     }  
+42   
+43 }
+
+5、注意点：
+服务对象同时只会有一个
+默认情况下，一个started的Service与启动他的组件在同一个线程中。
+上面的实例中，服务就是在主线程中运行的，如果是在服务中完成耗时操作的话，容易造成主线程阻塞。
+6、停止一个started服务有两种方法：
+（1）在外部使用stopService()
+（2）在服务内部(onStartCommand方法内部)使用stopSelf()方法。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
